@@ -32,49 +32,17 @@ var (
 	_ pathToken = decimalToken(0)
 )
 
-func (c characterToken) PathToken() {
-	panic("implement me")
-}
-
-func (w whitespaceToken) PathToken() {
-	panic("implement me")
-}
-
-func (c comparisonToken) PathToken() {
-	panic("implement me")
-}
-
-func (f fieldToken) PathToken() {
-	panic("implement me")
-}
-
-func (s stringToken) PathToken() {
-	panic("implement me")
-}
-
-func (d doubleQuotedStringToken) PathToken() {
-	panic("implement me")
-}
-
-func (s singleQuotedStringToken) PathToken() {
-	panic("implement me")
-}
-
-func (n nullToken) PathToken() {
-	panic("implement me")
-}
-
-func (b booleanToken) PathToken() {
-	panic("implement me")
-}
-
-func (i integerToken) PathToken() {
-	panic("implement me")
-}
-
-func (d decimalToken) PathToken() {
-	panic("implement me")
-}
+func (c characterToken) PathToken()          {}
+func (w whitespaceToken) PathToken()         {}
+func (c comparisonToken) PathToken()         {}
+func (f fieldToken) PathToken()              {}
+func (s stringToken) PathToken()             {}
+func (d doubleQuotedStringToken) PathToken() {}
+func (s singleQuotedStringToken) PathToken() {}
+func (n nullToken) PathToken()               {}
+func (b booleanToken) PathToken()            {}
+func (i integerToken) PathToken()            {}
+func (d decimalToken) PathToken()            {}
 
 const (
 	eof          characterToken = 0
