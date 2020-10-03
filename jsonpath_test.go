@@ -45,10 +45,16 @@ func MustFailOnTestJson(t *testing.T, path string) error {
 	return err
 }
 
+func AssertResult(t *testing.T, firstExpected interface{}, result interface{}) {
+	assert.Equal(t, []interface{}{
+		firstExpected,
+	}, result)
+}
+
 func TestEvaluator_Evaluate(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.firstName")
-		assert.Equal(t, "John", result)
+		AssertResult(t, "John", result)
 	})
 
 	t.Run("field does not exist", func(t *testing.T) {
@@ -58,22 +64,22 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("simple bracket", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$['firstName']")
-		assert.Equal(t, "John", result)
+		AssertResult(t, "John", result)
 	})
 
 	t.Run("sub object", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.address.streetAddress")
-		assert.Equal(t, "naist street", result)
+		AssertResult(t, "naist street", result)
 	})
 
 	t.Run("sub object brackets", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$['address']['streetAddress']")
-		assert.Equal(t, "naist street", result)
+		AssertResult(t, "naist street", result)
 	})
 
 	t.Run("array index", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.phoneNumbers[0].type")
-		assert.Equal(t, "iPhone", result)
+		AssertResult(t, "iPhone", result)
 	})
 
 	t.Run("array index fails on object", func(t *testing.T) {
@@ -93,7 +99,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("array indexes", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.phoneNumbers[0,1].type")
-		assert.Equal(t, []interface{}{
+		AssertResult(t, []interface{}{
 			"iPhone",
 			"home",
 		}, result)
@@ -101,7 +107,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("recursive phone type", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$..type")
-		assert.Equal(t, []interface{}{
+		AssertResult(t, []interface{}{
 			"iPhone",
 			"home",
 			"mobile",
@@ -110,12 +116,12 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("recursive first item", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$..type[0]")
-		assert.Equal(t, "iPhone", result)
+		AssertResult(t, "iPhone", result)
 	})
 
 	t.Run("recursive phone type", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$..streetAddress")
-		assert.Equal(t, []interface{}{
+		AssertResult(t, []interface{}{
 			"naist street",
 		}, result)
 	})

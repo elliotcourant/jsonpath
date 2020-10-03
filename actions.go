@@ -136,3 +136,16 @@ func (r recursiveAction) getAllObjects(data jsonNode) (jsonMutatedArray, error) 
 
 	return items, nil
 }
+
+type wildcardAccessAction struct{}
+
+func (w wildcardAccessAction) Execute(ctx *evalContext) (jsonNode, error) {
+	items := make(jsonMutatedArray, 0)
+	if isArray(ctx.data) {
+		for _, item := range ctx.data.(jsonArray) {
+			items = append(items, item)
+		}
+	}
+
+	return nil, nil
+}

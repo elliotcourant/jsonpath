@@ -62,5 +62,11 @@ func (e *Evaluator) run(root jsonNode) (interface{}, error) {
 		}
 	}
 
-	return ctx.data, nil
+	if ctx.data == nil {
+		return nil, nil
+	}
+
+	return []interface{}{
+		ctx.data,
+	}, nil
 }
