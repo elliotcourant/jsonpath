@@ -88,3 +88,17 @@ func TestEvaluator_Evaluate(t *testing.T) {
 		}, result)
 	})
 }
+
+func TestJsonpath(t *testing.T) {
+	t.Run("bad path", func(t *testing.T) {
+		result, err := Jsonpath(nil, `"thing`)
+		assert.Error(t, err)
+		assert.Nil(t, result)
+	})
+
+	t.Run("bad json", func(t *testing.T) {
+		result, err := Jsonpath([]byte(`{"test:true}`), `test`)
+		assert.Error(t, err)
+		assert.Nil(t, result)
+	})
+}

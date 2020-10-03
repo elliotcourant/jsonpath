@@ -32,3 +32,23 @@ func TestTokenize(t *testing.T) {
 		assert.NotEmpty(t, tokens)
 	}
 }
+
+func TestPathTokenizer_Tokenize(t *testing.T) {
+	t.Run("valid", func(t *testing.T) {
+		path := `$.store.book[?(@.price < $.expensive)]`
+		tokenizer := newPathTokenizer(path)
+
+		tokens, err := tokenizer.Tokenize()
+		assert.NoError(t, err)
+		assert.NotEmpty(t, tokens)
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		path := `"thing`
+		tokenizer := newPathTokenizer(path)
+
+		tokens, err := tokenizer.Tokenize()
+		assert.Error(t, err)
+		assert.Empty(t, tokens)
+	})
+}

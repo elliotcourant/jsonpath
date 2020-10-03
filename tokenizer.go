@@ -266,7 +266,7 @@ ScanLoop:
 		character := t.scan()
 		switch character {
 		case 0:
-			break ScanLoop
+			return "", errors.Errorf("unexpected eof parsing string")
 		case quote:
 			// If there are two of the quotes in a row we want to consider that
 			// an escape.
