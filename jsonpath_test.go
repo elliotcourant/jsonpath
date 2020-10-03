@@ -81,6 +81,11 @@ func TestEvaluator_Evaluate(t *testing.T) {
 		}, result)
 	})
 
+	t.Run("recursive first item", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$..type[0]")
+		assert.Equal(t, "iPhone", result)
+	})
+
 	t.Run("recursive phone type", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$..streetAddress")
 		assert.Equal(t, []interface{}{
