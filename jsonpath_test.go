@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// ExampleJsonpath is a simple example on how to extract a single field from
+// each object in an array using jsonpath.
 func ExampleJsonpath() {
 	const jsonString = `{
 	  "firstName": "John",
@@ -41,13 +43,13 @@ func ExampleJsonpath() {
 		log.Fatal(err)
 	}
 
+	for _, item := range result {
+		fmt.Println(item)
+	}
 	// Output:
 	// iPhone
 	// home
 	// mobile
-	for _, item := range result {
-		fmt.Println(item)
-	}
 }
 
 type I = interface{}

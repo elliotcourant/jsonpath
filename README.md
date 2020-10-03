@@ -42,11 +42,11 @@ if err != nil {
     log.Fatal(err)
 }
 
+for _, item := range result {
+    fmt.Println(item)
+}
 // Output:
 // iPhone
 // home
 // mobile
-for _, item := range result {
-    fmt.Println(item)
-}
 ```
