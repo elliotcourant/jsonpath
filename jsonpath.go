@@ -41,7 +41,7 @@ func (e *Evaluator) Evaluate(data []byte) (interface{}, error) {
 		return nil, err
 	}
 
-	return e.run(node)
+	return e.run(jsonArray{node})
 }
 
 func (e *Evaluator) run(root jsonNode) (interface{}, error) {
@@ -62,11 +62,5 @@ func (e *Evaluator) run(root jsonNode) (interface{}, error) {
 		}
 	}
 
-	if ctx.data == nil {
-		return nil, nil
-	}
-
-	return []interface{}{
-		ctx.data,
-	}, nil
+	return ctx.data, nil
 }

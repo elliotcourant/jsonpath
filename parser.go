@@ -108,6 +108,8 @@ func (p *pathParser) nextAction() (jsonAction, error) {
 			return rootAccessAction{}, nil
 		case openBracket:
 			return p.parseBrackets()
+		case asterisk:
+			return p.parseFieldAccess(p.buffer.Scan())
 		case period:
 			p.buffer.Scan()
 			if nextToken := p.buffer.Peek(); nextToken == period {
@@ -151,6 +153,8 @@ func (p *pathParser) parseBrackets() (jsonAction, error) {
 			return p.parseSliceAccess(t)
 		case question:
 			return nil, errors.Errorf("filtering not implemented")
+		case asterisk:
+			action, err = p.parseFieldAccess(t)
 		default:
 			return nil, errors.Errorf("unexpected token '%s'", string(t))
 		}
@@ -208,6 +212,12 @@ func (p *pathParser) parseFieldAccess(token pathToken) (jsonAction, error) {
 		field = string(raw)
 	case stringToken:
 		field = string(raw)
+	case characterToken:
+		if raw == asterisk {
+			return wildcardAccessAction{}, nil
+		}
+
+		return nil, errors.Errorf("unexpected '%s' parsing field access", string(raw))
 	default:
 		return nil, errors.Errorf("unexpected %T parsing field access", token)
 	}

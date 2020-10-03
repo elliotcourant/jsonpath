@@ -20,9 +20,17 @@ type arrayIndexAction int
 
 func (a arrayIndexAction) Execute(ctx *evalContext) (jsonNode, error) {
 	if isArray(ctx.data) {
-		// TODO (elliotcourant) What should we do with ok here?
-		item, _ := getIndex(ctx.data, int(a))
-		return item, nil
+		items := make(jsonArray, 0)
+		for _, item := range ctx.data.(jsonArray) {
+			if !isArray(item) {
+				return nil, errors.Errorf("item is not an array")
+			}
+			// TODO (elliotcourant) What should we do with ok here?
+			result, _ := getIndex(item, int(a))
+			items = append(items, result)
+		}
+
+		return items, nil
 	}
 
 	return nil, errors.Errorf("item is not an array")
@@ -41,9 +49,17 @@ func newArrayIndexListAction(indexes []integerToken) arrayIndexListAction {
 
 func (a arrayIndexListAction) Execute(ctx *evalContext) (jsonNode, error) {
 	if isArray(ctx.data) {
-		items := make(jsonMutatedArray, len(a), len(a))
-		for i, index := range a {
-			items[i], _ = getIndex(ctx.data, index)
+		data := ctx.data.(jsonArray)
+		items := make(jsonArray, 0, len(a)*len(data))
+		for _, item := range data {
+			if !isArray(item) {
+				return nil, errors.Errorf("item is not an array")
+			}
+			// TODO (elliotcourant) What should we do with ok here?
+			for _, index := range a {
+				result, _ := getIndex(item, index)
+				items = append(items, result)
+			}
 		}
 
 		return items, nil
@@ -56,33 +72,69 @@ type fieldAccessAction string
 
 func (f fieldAccessAction) Execute(ctx *evalContext) (jsonNode, error) {
 	if isObject(ctx.data) {
-		item, ok := getField(ctx.data, string(f))
-		if !ok {
-			return nil, nil
-		}
-
-		return item, nil
-	} else {
-		// We can only try to extract fields from mutated arrays.
-		array, ok := ctx.data.(jsonMutatedArray)
-		if !ok {
-			return nil, errors.Errorf("cannot extract field from array")
-		}
-
-		items := make(jsonArray, 0)
-		for _, item := range array {
-			item, ok := getField(item, string(f))
-			if !ok {
-				continue
-			}
-			// TODO (elliotcourant) If the item in the array is not an object
-			//  should this fail? Or return an error?
-
-			items = append(items, item)
-		}
-
-		return items, nil
+		return f.extractField(ctx.data.(jsonObject))
 	}
+
+	items := make([]interface{}, 0)
+
+	switch grouping := ctx.data.(type) {
+	case jsonArray:
+		for _, group := range grouping {
+			result, err := f.extractFromGroup(group)
+			if err != nil {
+				return nil, err
+			}
+
+			items = append(items, result...)
+		}
+	case jsonMutatedArray:
+		result, err := f.extractFromGroup(grouping)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, result...)
+
+	}
+
+	return items, nil
+}
+
+func (f fieldAccessAction) extractFromGroup(node jsonNode) ([]interface{}, error) {
+	items := make([]interface{}, 0)
+	switch obj := node.(type) {
+	case jsonObject:
+		item, err := f.extractField(obj)
+		if err != nil {
+			return nil, err
+		}
+
+		if item == nil {
+			break
+		}
+
+		items = append(items, item)
+	case jsonMutatedArray:
+		for _, group := range obj {
+			result, err := f.extractFromGroup(group)
+			if err != nil {
+				return nil, err
+			}
+
+			items = append(items, result...)
+		}
+	}
+
+	return items, nil
+}
+
+func (f fieldAccessAction) extractField(data jsonObject) (jsonNode, error) {
+	item, ok := data[string(f)]
+	if !ok {
+		return nil, nil
+	}
+
+	return item, nil
 }
 
 type rootAccessAction struct{}
@@ -140,12 +192,20 @@ func (r recursiveAction) getAllObjects(data jsonNode) (jsonMutatedArray, error) 
 type wildcardAccessAction struct{}
 
 func (w wildcardAccessAction) Execute(ctx *evalContext) (jsonNode, error) {
-	items := make(jsonMutatedArray, 0)
+	items := make([]interface{}, 0)
 	if isArray(ctx.data) {
-		for _, item := range ctx.data.(jsonArray) {
-			items = append(items, item)
+		for _, sub := range ctx.data.(jsonArray) {
+			if isArray(sub) {
+				for _, item := range sub.(jsonArray) {
+					items = append(items, item)
+				}
+			}
 		}
+
+		return items, nil
 	}
+
+	// TODO (elliotcourant) Implement object wildcard.
 
 	return nil, nil
 }
