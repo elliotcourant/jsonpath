@@ -6,10 +6,48 @@ import (
 	"github.com/pkg/errors"
 )
 
-type pathTokenizer struct {
-	path   string
-	len    int
-	offset int
+type (
+	tokenBuffer struct {
+		tokens      []pathToken
+		len, offset int
+	}
+
+	pathTokenizer struct {
+		path        string
+		len, offset int
+	}
+)
+
+func newPathTokenBuffer(path string) (*tokenBuffer, error) {
+	tokenizer := newPathTokenizer(path)
+	tokens, err := tokenizer.Tokenize()
+	if err != nil {
+		return nil, err
+	}
+
+	return &tokenBuffer{
+		tokens: tokens,
+		len:    len(tokens),
+		offset: 0,
+	}, nil
+}
+
+func (t *tokenBuffer) Peek() pathToken {
+	if t.len < t.offset+1 {
+		return eof
+	}
+
+	return t.tokens[t.offset]
+}
+
+func (t *tokenBuffer) Scan() pathToken {
+	if t.len < t.offset+1 {
+		return eof
+	}
+
+	t.offset++
+
+	return t.tokens[t.offset-1]
 }
 
 func newPathTokenizer(path string) *pathTokenizer {
@@ -250,7 +288,8 @@ ScanLoop:
 func (t *pathTokenizer) tokenizeString() (pathToken, error) {
 	startingIndex := t.offset
 
-	for character := t.peek(); t.isStringPart(character); character = t.scanAndPeek() {}
+	for character := t.peek(); t.isStringPart(character); character = t.scanAndPeek() {
+	}
 
 	str := t.path[startingIndex:t.offset]
 
