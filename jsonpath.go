@@ -12,7 +12,7 @@ type (
 	}
 )
 
-func Jsonpath(data []byte, path string) (interface{}, error) {
+func Jsonpath(data []byte, path string) ([]interface{}, error) {
 	eval, err := NewEvaluator(path)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func NewEvaluator(path string) (*Evaluator, error) {
 	return eval, nil
 }
 
-func (e *Evaluator) Evaluate(data []byte) (interface{}, error) {
+func (e *Evaluator) Evaluate(data []byte) ([]interface{}, error) {
 	node, err := parseJson(data)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (e *Evaluator) Evaluate(data []byte) (interface{}, error) {
 	return e.run(jsonArray{node})
 }
 
-func (e *Evaluator) run(root jsonNode) (interface{}, error) {
+func (e *Evaluator) run(root jsonNode) ([]interface{}, error) {
 	ctx := &evalContext{
 		parent: nil,
 		data:   root,
@@ -62,5 +62,5 @@ func (e *Evaluator) run(root jsonNode) (interface{}, error) {
 		}
 	}
 
-	return ctx.data, nil
+	return ctx.data.([]interface{}), nil
 }
