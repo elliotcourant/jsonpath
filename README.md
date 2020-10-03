@@ -30,7 +30,7 @@ This is still a work in progress, updates to come.
 		  "number": "0123-4567-8910"
 		},
 		{
-		  "type": "mobile",
+		  "type"  : "mobile",
 		  "number": "0913-8532-8492"
 		}
 	  ]
