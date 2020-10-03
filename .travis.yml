@@ -1,0 +1,31 @@
+language: go
+
+go:
+  - "1.13"
+  - "1.14"
+  - "1.15"
+
+matrix:
+  include:
+    - os: osx
+      install:
+        - make dependencies
+      script:
+        - make tests
+        - make coverage
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
+    - os: linux
+      install:
+        - make dependencies
+      script:
+        - make tests
+        - make coverage
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
+    - os: windows
+      script:
+        - go get -t -v ./...
+        - go test -v ./...
+  allow_failures:
+    - os: windows
