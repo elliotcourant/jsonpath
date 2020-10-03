@@ -139,7 +139,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 		}, result)
 	})
 
-	t.Run("wildcard", func(t *testing.T) {
+	t.Run("wildcard array", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.phoneNumbers[*]")
 		AssertResult(t, []I{
 			map[string]interface{}{
@@ -154,6 +154,15 @@ func TestEvaluator_Evaluate(t *testing.T) {
 				"type":   "mobile",
 				"number": "0913-8532-8492",
 			},
+		}, result)
+	})
+
+	t.Run("wildcard object", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$.address.*")
+		AssertResult(t, []I{
+			"naist street",
+			"Nara",
+			"630-0192",
 		}, result)
 	})
 }

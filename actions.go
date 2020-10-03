@@ -199,10 +199,18 @@ func (w wildcardAccessAction) Execute(ctx *evalContext) (jsonNode, error) {
 				for _, item := range sub.(jsonArray) {
 					items = append(items, item)
 				}
+			} else if isObject(sub) {
+				for _, value := range sub.(jsonObject) {
+					items = append(items, value)
+				}
 			}
 		}
 
 		return items, nil
+	} else if isObject(ctx.data) {
+		for _, value := range ctx.data.(jsonObject) {
+			items = append(items, value)
+		}
 	}
 
 	// TODO (elliotcourant) Implement object wildcard.
