@@ -38,10 +38,22 @@ func EvaluateOnTestJson(t *testing.T, path string) interface{} {
 	return result
 }
 
+func MustFailOnTestJson(t *testing.T, path string) error {
+	result, err := Jsonpath([]byte(TestJson), path)
+	require.Error(t, err, "there should be an error")
+	require.Nil(t, result, "result should be nil")
+	return err
+}
+
 func TestEvaluator_Evaluate(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.firstName")
 		assert.Equal(t, "John", result)
+	})
+
+	t.Run("field does not exist", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$.iDontExist")
+		assert.Nil(t, result)
 	})
 
 	t.Run("simple bracket", func(t *testing.T) {
@@ -62,6 +74,21 @@ func TestEvaluator_Evaluate(t *testing.T) {
 	t.Run("array index", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.phoneNumbers[0].type")
 		assert.Equal(t, "iPhone", result)
+	})
+
+	t.Run("array index fails on object", func(t *testing.T) {
+		err := MustFailOnTestJson(t, "[0]")
+		assert.EqualError(t, err, "item is not an array")
+	})
+
+	t.Run("array index list fails on object", func(t *testing.T) {
+		err := MustFailOnTestJson(t, "[0,1]")
+		assert.EqualError(t, err, "item is not an array")
+	})
+
+	t.Run("cannot access field on non-mutated array", func(t *testing.T) {
+		err := MustFailOnTestJson(t, "$.phoneNumbers.type")
+		assert.EqualError(t, err, "cannot extract field from array")
 	})
 
 	t.Run("array indexes", func(t *testing.T) {
