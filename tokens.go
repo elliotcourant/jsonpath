@@ -8,7 +8,6 @@ type (
 	characterToken          byte
 	whitespaceToken         byte
 	comparisonToken         string
-	fieldToken              string
 	stringToken             string
 	doubleQuotedStringToken string
 	singleQuotedStringToken string
@@ -22,7 +21,6 @@ var (
 	_ pathToken = characterToken(0)
 	_ pathToken = whitespaceToken(0)
 	_ pathToken = comparisonToken("")
-	_ pathToken = fieldToken("")
 	_ pathToken = stringToken("")
 	_ pathToken = doubleQuotedStringToken("")
 	_ pathToken = singleQuotedStringToken("")
@@ -35,7 +33,6 @@ var (
 func (c characterToken) PathToken()          {}
 func (w whitespaceToken) PathToken()         {}
 func (c comparisonToken) PathToken()         {}
-func (f fieldToken) PathToken()              {}
 func (s stringToken) PathToken()             {}
 func (d doubleQuotedStringToken) PathToken() {}
 func (s singleQuotedStringToken) PathToken() {}
@@ -54,6 +51,7 @@ const (
 	colon        characterToken = ':'
 	period       characterToken = '.'
 	comma        characterToken = ','
+	minus        characterToken = '-'
 	openBracket  characterToken = '['
 	closeBracket characterToken = ']'
 	openParen    characterToken = '('

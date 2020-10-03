@@ -11,6 +11,17 @@ func TestTokenize(t *testing.T) {
 		`$.phoneNumbers[:1].type`,
 		`$.store.book[*].author`,
 		`$..author`,
+		`$.store.book[*].title`,
+		`$.store..price`,
+		`$..book[2]`,
+		`$..book[(@.length-1)]`,
+		`$..book[-1:]`,
+		`$..book[0,1]`,
+		`$..book[:2]`,
+		`$..book[?(@.isbn)]`,
+		`$..book[?(@.price<10)]`,
+		`$..*`,
+		`$.store.book[?(@.price < $.expensive)]`,
 	}
 
 	for _, path := range paths {

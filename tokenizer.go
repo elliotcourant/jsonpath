@@ -151,6 +151,8 @@ func (t *pathTokenizer) nextToken() (pathToken, error) {
 		return t.consumeAndReturn(openParen)
 	case ')':
 		return t.consumeAndReturn(closeParen)
+	case '-':
+		return t.consumeAndReturn(minus)
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		return t.tokenizeNumber()
 	case '=':
