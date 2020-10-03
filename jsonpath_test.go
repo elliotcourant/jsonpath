@@ -79,7 +79,7 @@ const TestJson = `{
   ]
 }`
 
-func EvaluateOnTestJson(t *testing.T, path string) interface{} {
+func EvaluateOnTestJson(t *testing.T, path string) []interface{} {
 	result, err := Jsonpath([]byte(TestJson), path)
 	require.NoError(t, err, "should succeed")
 	return result
@@ -161,7 +161,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("array indexes", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.phoneNumbers[0,1].type")
-		AssertResult(t, []I{
+		AssertMatchingStringArray(t, []string{
 			"iPhone",
 			"home",
 		}, result)
@@ -169,7 +169,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("recursive phone type", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$..type")
-		AssertResult(t, []I{
+		AssertMatchingStringArray(t, []string{
 			"iPhone",
 			"home",
 			"mobile",
@@ -203,7 +203,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("wildcard object", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.address.*")
-		AssertResult(t, []I{
+		AssertMatchingStringArray(t, []string{
 			"naist street",
 			"Nara",
 			"630-0192",
