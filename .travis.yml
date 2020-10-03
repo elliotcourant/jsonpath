@@ -11,9 +11,6 @@ matrix:
         - make dependencies
       script:
         - make tests
-        - make coverage
-      after_success:
-        - bash <(curl -s https://codecov.io/bash)
     - os: linux
       install:
         - make dependencies
