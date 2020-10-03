@@ -25,6 +25,8 @@ type jsonArray = []interface{}
 
 type jsonObject = map[string]interface{}
 
+type jsonMutatedArray []jsonNode
+
 func isArray(data jsonNode) bool {
 	// We can type check this against an array of interfaces instead of using
 	// reflect. This is probably faster.

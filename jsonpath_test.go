@@ -24,7 +24,11 @@ const TestJson = `{
     {
       "type"  : "home",
       "number": "0123-4567-8910"
-    }
+    },
+	{
+      "type": "mobile",
+      "number": "0913-8532-8492"
+	}
   ]
 }`
 
@@ -40,13 +44,47 @@ func TestEvaluator_Evaluate(t *testing.T) {
 		assert.Equal(t, "John", result)
 	})
 
+	t.Run("simple bracket", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$['firstName']")
+		assert.Equal(t, "John", result)
+	})
+
 	t.Run("sub object", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.address.streetAddress")
+		assert.Equal(t, "naist street", result)
+	})
+
+	t.Run("sub object brackets", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$['address']['streetAddress']")
 		assert.Equal(t, "naist street", result)
 	})
 
 	t.Run("array index", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.phoneNumbers[0].type")
 		assert.Equal(t, "iPhone", result)
+	})
+
+	t.Run("array indexes", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$.phoneNumbers[0,1].type")
+		assert.Equal(t, []interface{}{
+			"iPhone",
+			"home",
+		}, result)
+	})
+
+	t.Run("recursive phone type", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$..type")
+		assert.Equal(t, []interface{}{
+			"iPhone",
+			"home",
+			"mobile",
+		}, result)
+	})
+
+	t.Run("recursive phone type", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$..streetAddress")
+		assert.Equal(t, []interface{}{
+			"naist street",
+		}, result)
 	})
 }

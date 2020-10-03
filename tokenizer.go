@@ -270,7 +270,7 @@ ScanLoop:
 		case quote:
 			// If there are two of the quotes in a row we want to consider that
 			// an escape.
-			if t.scanAndPeek() == quote {
+			if t.peek() == quote {
 				continue
 			} else {
 				break ScanLoop
@@ -278,13 +278,13 @@ ScanLoop:
 		case '\\':
 			// If there are two of the quotes in a row we want to consider that
 			// an escape.
-			if t.scanAndPeek() == quote {
+			if t.peek() == quote {
 				continue
 			}
 		}
 	}
 
-	return t.path[startingIndex:t.offset], nil
+	return t.path[startingIndex : t.offset-1], nil
 }
 
 func (t *pathTokenizer) tokenizeString() (pathToken, error) {
