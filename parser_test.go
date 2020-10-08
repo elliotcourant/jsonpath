@@ -9,7 +9,7 @@ import (
 func TestParse(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
 		path := "[0].name"
-		compiled, err := ParsePath(path)
+		compiled, err := parsePath(path)
 		assert.NoError(t, err)
 
 		assert.NotEmpty(t, compiled)

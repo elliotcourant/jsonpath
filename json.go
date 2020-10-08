@@ -19,13 +19,12 @@ func parseJson(input []byte) (jsonNode, error) {
 	return data, nil
 }
 
-type jsonNode interface{}
-
-type jsonArray = []interface{}
-
-type jsonObject = map[string]interface{}
-
-type jsonMutatedArray []jsonNode
+type (
+	jsonNode         interface{}
+	jsonArray        = []interface{}
+	jsonObject       = map[string]interface{}
+	jsonMutatedArray []jsonNode
+)
 
 func isArray(data jsonNode) bool {
 	// We can type check this against an array of interfaces instead of using
@@ -41,20 +40,6 @@ func isObject(data jsonNode) bool {
 	//  fail if they are.
 	_, ok := data.(jsonObject)
 	return ok
-}
-
-func getField(data jsonNode, fieldName string) (jsonNode, bool) {
-	object, ok := data.(jsonObject)
-	if !ok {
-		// Fail silently.
-		// TODO (elliotcourant) Maybe log something? Test this with an actual
-		//  jsonpath.
-		return nil, false
-	}
-
-	result, ok := object[fieldName]
-
-	return jsonNode(result), ok
 }
 
 func getIndex(data jsonNode, index int) (jsonNode, bool) {

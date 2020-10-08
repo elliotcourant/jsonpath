@@ -1,11 +1,13 @@
 package jsonpath
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 )
 
 type (
-	CompiledJsonPath struct {
+	compiledJsonPath struct {
 		actions []jsonAction
 	}
 
@@ -24,15 +26,15 @@ const (
 	sliceAccessList
 )
 
-func ParsePath(path string) (CompiledJsonPath, error) {
+func parsePath(path string) (compiledJsonPath, error) {
 	parser, err := newPathParser(path)
 	if err != nil {
-		return CompiledJsonPath{}, err
+		return compiledJsonPath{}, err
 	}
 
 	actions, err := parser.Parse()
 
-	return CompiledJsonPath{
+	return compiledJsonPath{
 		actions: actions,
 	}, err
 }
@@ -136,14 +138,8 @@ func (p *pathParser) parseBrackets() (jsonAction, error) {
 
 	token := p.buffer.Scan()
 	switch t := token.(type) {
-	case singleQuotedStringToken, doubleQuotedStringToken:
-		// We are accessing a field.
-		action, err = p.parseFieldAccess(t)
-		if err != nil {
-			return nil, err
-		}
-	case stringToken:
-		return nil, errors.Errorf("unexpected string in brackets")
+	case singleQuotedStringToken, doubleQuotedStringToken, stringToken:
+		return p.parseFieldSliceAccess(t)
 	case integerToken:
 		return p.parseSliceAccess(t)
 	case characterToken:
@@ -162,7 +158,39 @@ func (p *pathParser) parseBrackets() (jsonAction, error) {
 		return nil, errors.Errorf("somethings broken")
 	}
 
+	if err != nil {
+		return nil, err
+	}
+
 	return action, p.expectCharacterToken(closeBracket)
+}
+
+func (p *pathParser) parseFieldSliceAccess(firstToken pathToken) (jsonAction, error) {
+	action := make(arrayFieldAccessAction, 0)
+	action = append(action, fmt.Sprint(firstToken))
+	for {
+		nextToken := p.buffer.Scan()
+		switch token := nextToken.(type) {
+		case stringToken, doubleQuotedStringToken, singleQuotedStringToken:
+			field, err := p.parseString(token)
+			if err != nil {
+				return nil, err
+			}
+
+			action = append(action, field)
+		case characterToken:
+			switch token {
+			case comma: // Consume a comma token. We expect this to be comma delimited.
+			case closeBracket:
+				// Once we finally see a close bracket return the accessor.
+				return action, nil
+			default:
+				return nil, errors.Errorf("unexpected '%s' in slice field access", string(token))
+			}
+		default:
+			return nil, errors.Errorf("unexpected %T in slice field access", token)
+		}
+	}
 }
 
 func (p *pathParser) parseSliceAccess(firstToken pathToken) (jsonAction, error) {
@@ -203,7 +231,7 @@ ScanLoop:
 	return nil, errors.Errorf("bad index operation")
 }
 
-func (p *pathParser) parseFieldAccess(token pathToken) (jsonAction, error) {
+func (p *pathParser) parseString(token pathToken) (string, error) {
 	var field string
 	switch raw := token.(type) {
 	case singleQuotedStringToken:
@@ -212,6 +240,22 @@ func (p *pathParser) parseFieldAccess(token pathToken) (jsonAction, error) {
 		field = string(raw)
 	case stringToken:
 		field = string(raw)
+	default:
+		return "", errors.Errorf("token %T is not a string", token)
+	}
+
+	return field, nil
+}
+
+func (p *pathParser) parseFieldAccess(token pathToken) (jsonAction, error) {
+	var field string
+	var err error
+	switch raw := token.(type) {
+	case singleQuotedStringToken, doubleQuotedStringToken, stringToken:
+		field, err = p.parseString(raw)
+		if err != nil {
+			return nil, err
+		}
 	case characterToken:
 		if raw == asterisk {
 			return wildcardAccessAction{}, nil

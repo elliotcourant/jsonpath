@@ -11,6 +11,7 @@ type jsonAction interface {
 var (
 	_ jsonAction = arrayIndexAction(0)
 	_ jsonAction = arrayIndexListAction{}
+	_ jsonAction = arrayFieldAccessAction{}
 	_ jsonAction = fieldAccessAction("")
 	_ jsonAction = rootAccessAction{}
 	_ jsonAction = recursiveAction{}
@@ -66,6 +67,27 @@ func (a arrayIndexListAction) Execute(ctx *evalContext) (jsonNode, error) {
 	}
 
 	return nil, errors.Errorf("item is not an array")
+}
+
+type arrayFieldAccessAction []string
+
+func (a arrayFieldAccessAction) Execute(ctx *evalContext) (jsonNode, error) {
+	items := make([]interface{}, 0)
+	for _, field := range a {
+		action := fieldAccessAction(field)
+		item, err := action.Execute(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		if array, ok := item.(jsonArray); ok {
+			items = append(items, array...)
+		} else {
+			items = append(items, item)
+		}
+	}
+
+	return items, nil
 }
 
 type fieldAccessAction string

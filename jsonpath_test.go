@@ -167,6 +167,14 @@ func TestEvaluator_Evaluate(t *testing.T) {
 		}, result)
 	})
 
+	t.Run("field slice", func(t *testing.T) {
+		result := EvaluateOnTestJson(t, "$[firstName,lastName]")
+		AssertMatchingStringArray(t, []string{
+			"John",
+			"doe",
+		}, result)
+	})
+
 	t.Run("recursive phone type", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$..type")
 		AssertMatchingStringArray(t, []string{
