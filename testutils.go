@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func AssertMatchingStringArray(t *testing.T, expected []string, result []interface{}) {
+func assertMatchingStringArray(t *testing.T, expected []string, result []interface{}) {
 	actual := make([]string, len(result), len(result))
 	for i, item := range result {
 		actual[i] = item.(string)

@@ -161,7 +161,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("array indexes", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.phoneNumbers[0,1].type")
-		AssertMatchingStringArray(t, []string{
+		assertMatchingStringArray(t, []string{
 			"iPhone",
 			"home",
 		}, result)
@@ -169,7 +169,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("field slice", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$[firstName,lastName]")
-		AssertMatchingStringArray(t, []string{
+		assertMatchingStringArray(t, []string{
 			"John",
 			"doe",
 		}, result)
@@ -177,7 +177,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("recursive phone type", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$..type")
-		AssertMatchingStringArray(t, []string{
+		assertMatchingStringArray(t, []string{
 			"iPhone",
 			"home",
 			"mobile",
@@ -211,7 +211,7 @@ func TestEvaluator_Evaluate(t *testing.T) {
 
 	t.Run("wildcard object", func(t *testing.T) {
 		result := EvaluateOnTestJson(t, "$.address.*")
-		AssertMatchingStringArray(t, []string{
+		assertMatchingStringArray(t, []string{
 			"naist street",
 			"Nara",
 			"630-0192",
